@@ -5,6 +5,7 @@
 
 from spack.package import *
 
+
 class Feelpp(CMakePackage):
     """
     Feel++ is an Open-Source C++ library designed to solve a wide range of
