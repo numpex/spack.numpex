@@ -6,7 +6,7 @@
 from spack.package import *
 
 
-class Feelpp(CMakePackage):
+class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     """
     Feel++ is an Open-Source C++ library designed to solve a wide range of
     partial differential equations (PDEs) using advanced Galerkin methods.
@@ -41,6 +41,7 @@ class Feelpp(CMakePackage):
     variant(
         "cxxstd", default="20", description="C++ standard", values=["17", "20", "23"], multi=False
     )
+    variant("kokkos", default=False, description="Enable Kokkos support")
 
     # Specify dependencies with required versions
     depends_on("c", type="build")
@@ -67,6 +68,26 @@ class Feelpp(CMakePackage):
     depends_on("ruby")
     depends_on("gmsh +opencascade+mmg+fltk")
     depends_on("curl")
+    depends_on("kokkos", when="+kokkos")
+    depends_on("kokkos-kernels", when="+kokkos")
+    for rocm_arch in ROCmPackage.amdgpu_targets:
+        depends_on(
+            "kokkos+rocm amdgpu_target=%s" % rocm_arch,
+            when="+kokkos +rocm amdgpu_target=%s" % rocm_arch,
+        )
+    # Add dependencies for GPU support on AMD
+    depends_on("hip", when="+rocm")
+
+    with when("+rocm"):
+        depends_on("hipblas")
+        depends_on("hipsparse")
+        depends_on("hipsolver")
+        depends_on("rocsparse")
+        depends_on("rocsolver")
+        depends_on("rocblas")
+        depends_on("rocrand")
+        depends_on("rocthrust")
+        depends_on("rocprim")
 
     # Python dependencies if +python variant is enabled
     depends_on("py-pytest", when="+python")
@@ -105,6 +126,33 @@ class Feelpp(CMakePackage):
             self.define_from_variant("FEELPP_ENABLE_MOR", "mor"),
             self.define_from_variant("FEELPP_ENABLE_FEELPP_PYTHON", "python"),
         ]
+
+        # Handle ROCm support
+        if '+rocm' in self.spec:
+            # Set architecture
+            if not self.spec.satisfies("amdgpu_target=none"):
+                hip_arch = self.spec.variants['amdgpu_target'].value
+                args.append(f"-DAMDGPU_TARGET={hip_arch[0]}")
+
+            # Collect HIP include directories and libraries
+            hip_pkgs = ['hipsparse', 'hipblas', 'hipsolver', 'rocsparse', 'rocsolver', 'rocblas']
+            hip_ipkgs = hip_pkgs + ['rocthrust', 'rocprim']
+            hip_lpkgs = hip_pkgs
+
+            # Handle rocrand versioning
+            if self.spec.satisfies("^rocrand@5.1:"):
+                hip_ipkgs.append('rocrand')
+            else:
+                hip_lpkgs.append('rocrand')
+
+            # Collect include and library flags
+            hip_inc_flags = ' '.join([self.spec[pkg].headers.include_flags for pkg in hip_ipkgs])
+            hip_lib_flags = ' '.join([self.spec[pkg].libs.joined() for pkg in hip_lpkgs])
+
+            # Add HIP flags to CMake arguments
+            args.append(f"-DHIP_INCLUDE_DIRS={hip_inc_flags}")
+            args.append(f"-DHIP_LIBRARIES={hip_lib_flags}")
+            args.append(f"-DHIP_LIBRARY_DIRS={self.spec['hip'].prefix}/lib -lamdhip64")
         return args
 
     def build(self, spec, prefix):
