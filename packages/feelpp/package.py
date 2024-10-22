@@ -166,3 +166,14 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     def test(self, spec, prefix):
         ctest = which("ctest")
         ctest("--preset", self.get_preset_name(), "-R", "qs_laplacian")
+
+    def setup_run_environment(self, env):
+        import os
+        env.prepend_path(
+            "PYTHONPATH",
+            os.path.join(
+                self.spec.prefix.lib,
+                "python{0}".format(self.spec["python"].version.up_to(2)),
+                "site-packages",
+            ),
+        )
