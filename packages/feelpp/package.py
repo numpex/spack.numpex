@@ -68,7 +68,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("ruby")
     depends_on("gmsh +opencascade+mmg+fltk")
     depends_on("curl")
-    depends_on("kokkos", when="+kokkos")
+    depends_on("kokkos +threads+hwloc", when="+kokkos")
     depends_on("kokkos-kernels", when="+kokkos")
     for rocm_arch in ROCmPackage.amdgpu_targets:
         depends_on(
