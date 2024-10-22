@@ -120,6 +120,8 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
             "-DFEELPP_ENABLE_OMC=OFF",
             "-DFEELPP_ENABLE_ANN=OFF",
             "-DFEELPP_USE_EXTERNAL_CLN=ON",
+            "-DFEELPP_USE_EXTERNAL_GLOG=ON",
+            "-DFEELPP_USE_EXTERNAL_GFLAGS=ON",
             self.define_from_variant("FEELPP_ENABLE_QUICKSTART", "quickstart"),
             self.define_from_variant("FEELPP_ENABLE_TESTS", "tests"),
             self.define_from_variant("FEELPP_ENABLE_TOOLBOXES", "toolboxes"),
