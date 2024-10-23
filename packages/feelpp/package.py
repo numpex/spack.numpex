@@ -41,8 +41,8 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     variant(
         "cxxstd", default="20", description="C++ standard", values=["17", "20", "23"], multi=False
     )
-    variant("kokkos", default=False, description="Enable Kokkos support")
-
+    variant("kokkos", default=True, description="Enable Kokkos support")
+    conflicts("^openmpi~cuda", when="+cuda")  # +cuda requires CUDA enabled OpenMPI
     # Specify dependencies with required versions
     depends_on("c", type="build")
     depends_on("cxx", type="build")
@@ -62,14 +62,27 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("bison")
     depends_on("flex")
     depends_on("pugixml")
+    depends_on("readline")
     depends_on("gsl")
     depends_on("glpk")
     depends_on("gl2ps")
     depends_on("ruby")
     depends_on("gmsh +opencascade+mmg+fltk")
     depends_on("curl")
+    depends_on("glog")
+    depends_on("gflags")
     depends_on("kokkos +threads+hwloc", when="+kokkos")
     depends_on("kokkos-kernels", when="+kokkos")
+
+    for cuda_arch in CudaPackage.cuda_arch_values:
+        depends_on(
+            "kokkos+cuda+cuda_lambda cuda_arch=%s" % cuda_arch,
+            when="+kokkos +cuda cuda_arch=%s" % cuda_arch,
+        )
+        depends_on(
+            "kokkos-kernels+cuda cuda_arch=%s" % cuda_arch,
+            when="+kokkos +cuda cuda_arch=%s" % cuda_arch,
+        )
     for rocm_arch in ROCmPackage.amdgpu_targets:
         depends_on(
             "kokkos+rocm amdgpu_target=%s" % rocm_arch,
@@ -103,32 +116,34 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("py-ipykernel", when="+python")
     depends_on("py-mpi4py", when="+python")
     depends_on("py-tqdm", when="+python")
-    depends_on("python@3.7:3.12", when="+python", type=("build", "run"))
+    depends_on("python@3.7:3.11", when="+python", type=("build", "run"))
 
     def get_preset_name(self):
         spec = self.spec
         cpp_version = spec.variants["cxxstd"].value
-        preset_name = f"feelpp-clang-cpp{cpp_version}-default-release"
+        gpu="rocm" if "+rocm" in spec else "cpu"
+        preset_name = f"feelpp-clang-cpp{cpp_version}-spack-{gpu}-release"
         return preset_name
 
     def cmake_args(self):
         """Define the CMake preset and CMake options based on variants."""
         args = [
             f"--preset={self.get_preset_name()}",
-            "-DFEELPP_ENABLE_VTK=OFF",
-            "-DFEELPP_ENABLE_OPENTURNS=OFF",
-            "-DFEELPP_ENABLE_OMC=OFF",
-            "-DFEELPP_ENABLE_ANN=OFF",
-            "-DFEELPP_USE_EXTERNAL_CLN=ON",
-            "-DFEELPP_USE_EXTERNAL_GLOG=ON",
-            "-DFEELPP_USE_EXTERNAL_GFLAGS=ON",
             self.define_from_variant("FEELPP_ENABLE_QUICKSTART", "quickstart"),
             self.define_from_variant("FEELPP_ENABLE_TESTS", "tests"),
             self.define_from_variant("FEELPP_ENABLE_TOOLBOXES", "toolboxes"),
             self.define_from_variant("FEELPP_ENABLE_MOR", "mor"),
             self.define_from_variant("FEELPP_ENABLE_FEELPP_PYTHON", "python"),
         ]
-
+        if "+cuda" in self.spec:
+            if not self.spec.satisfies("cuda_arch=none"):
+                cuda_arch = self.spec.variants["cuda_arch"].value
+                if self.spec.satisfies("@3.14:"):
+                    args.append("--with-cuda-gencodearch={0}".format(cuda_arch[0]))
+                else:
+                    args.append(
+                        "CUDAFLAGS=-gencode arch=compute_{0},code=sm_{0}".format(cuda_arch[0])
+                    )
         # Handle ROCm support
         if '+rocm' in self.spec:
             # Set architecture
@@ -171,6 +186,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
 
     def setup_run_environment(self, env):
         import os
+        env.set("FEELPP_DIR", self.prefix )
         env.prepend_path(
             "PYTHONPATH",
             os.path.join(
@@ -179,3 +195,6 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
                 "site-packages",
             ),
         )
+    def setup_dependent_build_environment(self, env, dependent_spec):
+        """set FEELPP_DIR"""
+        env.set("FEELPP_DIR", self.prefix )
