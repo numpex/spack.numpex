@@ -55,7 +55,9 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     )
     depends_on("petsc@3.20 +mumps+hwloc+ptscotch +suite-sparse+hdf5 +hypre+kokkos")
     depends_on("slepc")
-    depends_on("cln@1.3.6")
+    depends_on("fmt")
+    depends_on("cln")
+    depends_on("eigen")
     depends_on("fftw")
     depends_on("libunwind")
     depends_on("libzip")
@@ -76,7 +78,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
 
     for cuda_arch in CudaPackage.cuda_arch_values:
         depends_on(
-            "kokkos+cuda+cuda_lambda cuda_arch=%s" % cuda_arch,
+            "kokkos +threads+hwloc+cuda+cuda_lambda cuda_arch=%s" % cuda_arch,
             when="+kokkos +cuda cuda_arch=%s" % cuda_arch,
         )
         depends_on(
@@ -85,7 +87,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
         )
     for rocm_arch in ROCmPackage.amdgpu_targets:
         depends_on(
-            "kokkos+rocm amdgpu_target=%s" % rocm_arch,
+            "kokkos +threads+hwloc+rocm amdgpu_target=%s" % rocm_arch,
             when="+kokkos +rocm amdgpu_target=%s" % rocm_arch,
         )
     # Add dependencies for GPU support on AMD
