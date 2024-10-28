@@ -53,7 +53,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on(
         "boost@1.75: +regex+date_time+filesystem+iostreams+mpi+multithreaded+program_options+serialization+shared+system+test"
     )
-    depends_on("petsc@3.20 +mumps+hwloc+ptscotch +suite-sparse+hdf5 +hypre+kokkos")
+    depends_on("petsc@3.20 +mumps+hwloc+ptscotch +suite-sparse+hdf5 +hypre~kokkos")
     depends_on("slepc")
     depends_on("fmt")
     depends_on("cln")
