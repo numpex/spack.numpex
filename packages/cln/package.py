@@ -42,11 +42,7 @@ class Cln(CMakePackage, AutotoolsPackage):
     variant("gmp", default=True, description="Enable GMP multiprecision library")
 
     # Build system
-    build_system(
-        conditional("cmake", when="@1.3:"),
-        conditional("autotools", when="@:1.2.2"),
-        default="cmake",
-    )
+    build_system(conditional("cmake", when="@1.3:"),conditional("autotools", when="@:1.2"),default="cmake")
 
     with when("build_system=autotools"):
         depends_on("autoconf", type="build")
@@ -56,9 +52,6 @@ class Cln(CMakePackage, AutotoolsPackage):
         depends_on("texinfo", type="build")
         # Dependencies required to define macro AC_LIB_LINKFLAGS_FROM_LIBS
         depends_on("gettext", type="build")
-
-    with when("build_system=cmake"):
-        depends_on("cmake", type="build")
 
     depends_on("gmp@4.1:", when="+gmp")
 
