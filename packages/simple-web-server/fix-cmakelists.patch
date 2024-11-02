@@ -1,0 +1,83 @@
+From af1de13e354cd2d88715a6435d7c4806d2f1a5a9 Mon Sep 17 00:00:00 2001
+From: Christophe Prud'homme <christophe.prudhomme@feelpp.org>
+Date: Tue, 29 Oct 2024 01:36:30 +0100
+Subject: [PATCH] Fix CMakeLists.txt to export and install targets
+
+---
+ CMakeLists.txt                       | 50 +++++++++++++++++++++++++---
+ cmake/SimpleWebServerConfig.cmake.in |  0
+ 2 files changed, 45 insertions(+), 5 deletions(-)
+ create mode 100644 cmake/SimpleWebServerConfig.cmake.in
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 78c94e5..5b29079 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -13,11 +13,13 @@ option(USE_OPENSSL "set OFF to build without OpenSSL" ON)
+ 
+ add_library(simple-web-server INTERFACE)
+ 
+-if(CMAKE_SOURCE_DIR STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+-    target_include_directories(simple-web-server INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+-else()
+-    target_include_directories(simple-web-server SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+-endif()
++include(GNUInstallDirs) 
++
++# Set the include directories based on build vs. install
++target_include_directories(simple-web-server INTERFACE
++    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
++    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/simple-web-server>
++)
+ 
+ find_package(Threads REQUIRED)
+ target_link_libraries(simple-web-server INTERFACE Threads::Threads)
+@@ -100,3 +102,41 @@ if(BUILD_TESTING OR BUILD_FUZZING)
+     endif()
+     add_subdirectory(tests)
+ endif()
++
++# Define and Set the Project Version
++set(SimpleWebServer_VERSION 3.1.1)  # Update this with the actual version
++
++# Install the target and export it for find_package
++install(TARGETS simple-web-server
++        EXPORT SimpleWebServerTargets
++        INCLUDES DESTINATION include
++)
++
++# Export the package configuration
++include(CMakePackageConfigHelpers)
++write_basic_package_version_file(
++    "${CMAKE_CURRENT_BINARY_DIR}/SimpleWebServerConfigVersion.cmake"
++    VERSION ${SimpleWebServer_VERSION}
++    COMPATIBILITY AnyNewerVersion
++)
++
++# Configure the config file for find_package(SimpleWebServer)
++configure_package_config_file(
++    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/SimpleWebServerConfig.cmake.in"
++    "${CMAKE_CURRENT_BINARY_DIR}/SimpleWebServerConfig.cmake"
++    INSTALL_DESTINATION lib/cmake/SimpleWebServer
++)
++
++# Export the targets to a file
++install(EXPORT SimpleWebServerTargets
++        FILE SimpleWebServerTargets.cmake
++        NAMESPACE SimpleWebServer::
++        DESTINATION lib/cmake/SimpleWebServer
++)
++
++# Install the generated config files
++install(FILES
++    "${CMAKE_CURRENT_BINARY_DIR}/SimpleWebServerConfig.cmake"
++    "${CMAKE_CURRENT_BINARY_DIR}/SimpleWebServerConfigVersion.cmake"
++    DESTINATION lib/cmake/SimpleWebServer
++)
+\ No newline at end of file
+diff --git a/cmake/SimpleWebServerConfig.cmake.in b/cmake/SimpleWebServerConfig.cmake.in
+new file mode 100644
+index 0000000..e69de29
+-- 
+2.34.1
+
