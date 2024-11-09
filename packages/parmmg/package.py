@@ -33,9 +33,11 @@ class Parmmg(CMakePackage):
     depends_on("c", type="build")  # generated
     depends_on("cxx", type="build")  # generated
     depends_on("fortran", type="build")  # generated
-    
-    depends_on("mmg@5.8: +private")
+
+    depends_on("mmg", when="@:1.4.0")
+    depends_on("mmg@5.8: +private", when="@1.5.0:")
     depends_on("metis")
+    depends_on("hdf5 +mpi")
     depends_on("vtk", when="+vtk")
     depends_on("mpi")
 
