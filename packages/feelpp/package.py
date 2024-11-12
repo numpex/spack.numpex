@@ -29,7 +29,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     license("LGPL-3.0-or-later AND GPL-3.0-or-later")
 
     version("develop", branch="develop")
-    version("preset", branch="2284-add-spack-environment-to-the-main-ci")
+    version("preset", branch="2284-add-spack-environment-to-the-main-ci", preferred=True)
 
     # Define variants
     variant("toolboxes", default=True, description="Enable the Feel++ toolboxes")
@@ -41,7 +41,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     variant(
         "cxxstd", default="20", description="C++ standard", values=["17", "20", "23"], multi=False
     )
-    variant("kokkos", default=True, description="Enable Kokkos support")
+    variant("kokkos", default=False, description="Enable Kokkos support")
     conflicts("^openmpi~cuda", when="+cuda")  # +cuda requires CUDA enabled OpenMPI
     # Specify dependencies with required versions
     depends_on("c", type="build")
@@ -53,28 +53,36 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on(
         "boost@1.75: +regex+date_time+filesystem+iostreams+mpi+multithreaded+program_options+serialization+shared+system+test"
     )
+    depends_on("cpr")
+    depends_on("glog")
+    depends_on("gflags")
+    depends_on("tabulate")
+    depends_on("indicators")
     depends_on("petsc@3.20 +mumps+hwloc+ptscotch +suite-sparse+hdf5 +hypre~kokkos")
     depends_on("slepc")
-    depends_on("fmt")
+    depends_on("parmmg")
+    depends_on("fmt+shared cxxstd=17")
     depends_on("cln")
     depends_on("eigen")
-    depends_on("fmi4cpp")
-    depends_on("fftw")
+    depends_on("eigenrand")
+    depends_on("nlopt")
+    depends_on("ipopt")
+    depends_on("nanoflann")
+    depends_on("fmi4cpp@master")
+    depends_on("matplotplusplus")
+    depends_on("simple-web-server@master")
+    depends_on("fftw precision=float,double,long_double +mpi +openmp")
+    depends_on("gmsh +opencascade+mmg+fltk")
     depends_on("libunwind")
     depends_on("libzip")
+    depends_on("curl")
     depends_on("bison")
     depends_on("flex")
-    depends_on("pugixml")
     depends_on("readline")
     depends_on("gsl")
     depends_on("glpk")
     depends_on("gl2ps")
     depends_on("ruby")
-    depends_on("gmsh +opencascade+mmg+fltk")
-    depends_on("curl")
-    depends_on("cpr")
-    depends_on("glog")
-    depends_on("gflags")
     depends_on("kokkos +threads+hwloc", when="+kokkos")
     depends_on("kokkos-kernels", when="+kokkos")
 
@@ -109,18 +117,18 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     # Python dependencies if +python variant is enabled
     depends_on("py-pytest", when="+python")
     depends_on("py-pandas", when="+python")
-    depends_on("py-petsc4py", when="+python")
-    depends_on("py-slepc4py", when="+python")
+    depends_on("py-petsc4py")
+    depends_on("py-slepc4py")
     depends_on("py-numpy", when="+python")
-    depends_on("py-pybind11", when="+python")
-    depends_on("py-sympy", when="+python")
+    depends_on("py-pybind11")
+    depends_on("py-sympy")
     depends_on("py-plotly", when="+python")
     depends_on("py-scipy", when="+python")
     depends_on("py-tabulate", when="+python")
     depends_on("py-ipykernel", when="+python")
-    depends_on("py-mpi4py", when="+python")
+    depends_on("py-mpi4py")
     depends_on("py-tqdm", when="+python")
-    depends_on("python@3.7:3.11", when="+python", type=("build", "run"))
+    depends_on("python@3.7:3.11", type=("build", "run"))
 
     def get_preset_name(self):
         spec = self.spec
@@ -184,9 +192,17 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
         cmake = which("cmake")
         cmake("--build", "--preset", self.get_preset_name(), "-t", "install")
 
-    def test(self, spec, prefix):
-        ctest = which("ctest")
-        ctest("--preset", self.get_preset_name(), "-R", "qs_laplacian")
+    def test_laplacian(self):
+        # Test the Laplacian example
+        laplacian_2d = which("feelpp_qs_laplacian_2d")
+        for case in [ "triangle", "feelpp2d", "square" ]:
+            laplacian_2d(
+                "--config-file", f"{self.prefix}/share/feelpp/data/testcases/quickstart/laplacian/cases/{case}/{case}.cfg","--f","1"
+            )
+#
+#        mpirun = which("mpirun")
+#        mpirun("-np", "2", self.prefix.bin.feelpp_qs_laplacian_2d, " --config-file", f"{self.prefix}/share/feelpp/data/testcases/quickstart/laplacian/cases/triangle/triangle.cfg")
+
 
     def setup_run_environment(self, env):
         import os

@@ -1,0 +1,50 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c863ee9..0df3ccc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -139,6 +139,35 @@ install(TARGETS eigenrand
+   INCLUDES DESTINATION include
+ )
+ 
++
++# Export EigenRand Targets
++install(EXPORT EigenRandTargets
++  FILE EigenRandTargets.cmake
++  NAMESPACE EigenRand::
++  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/EigenRand
++)
++
++# Generate EigenRandConfig.cmake and EigenRandConfigVersion.cmake
++include(CMakePackageConfigHelpers)
++write_basic_package_version_file(
++  "${CMAKE_CURRENT_BINARY_DIR}/EigenRandConfigVersion.cmake"
++  VERSION ${PROJECT_VERSION}
++  COMPATIBILITY AnyNewerVersion
++)
++
++configure_file(
++  ${CMAKE_CURRENT_SOURCE_DIR}/EigenRandConfig.cmake.in
++  ${CMAKE_CURRENT_BINARY_DIR}/EigenRandConfig.cmake
++  @ONLY
++)
++
++# Install EigenRandConfig and EigenRandConfigVersion
++install(FILES
++  "${CMAKE_CURRENT_BINARY_DIR}/EigenRandConfig.cmake"
++  "${CMAKE_CURRENT_BINARY_DIR}/EigenRandConfigVersion.cmake"
++  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/EigenRand
++)
++
+ set(CPACK_PACKAGE_NAME "EigenRand-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${EXTRA_VERSION}")
+ set(CPACK_SOURCE_PACKAGE_FILE_NAME "EigenRand-${PROJECT_VERSION}${EXTRA_VERSION}")
+ set(CPACK_PACKAGE_FILE_NAME "EigenRand-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${EXTRA_VERSION}-${CMAKE_SYSTEM_NAME}")
+diff --git a/EigenRandConfig.cmake.in b/EigenRandConfig.cmake.in
+new file mode 100644
+index 0000000..b76a8d6
+--- /dev/null
++++ b/EigenRandConfig.cmake.in
+@@ -0,0 +1,3 @@
++@PACKAGE_INIT@
++
++include("${CMAKE_CURRENT_LIST_DIR}/EigenRandTargets.cmake")
+\ No newline at end of file
