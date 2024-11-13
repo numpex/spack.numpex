@@ -67,6 +67,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("eigenrand")
     depends_on("nlopt")
     depends_on("ipopt")
+    depends_on("napp")
     depends_on("nanoflann")
     depends_on("fmi4cpp@master")
     depends_on("matplotplusplus")
