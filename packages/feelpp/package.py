@@ -31,12 +31,20 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     version("develop", branch="develop")
     version("preset", branch="2284-add-spack-environment-to-the-main-ci", preferred=True)
 
+    variant("build_type",
+        default="Release",
+        values=("Debug", "Release", "RelWithDebInfo"),
+        description="Choose the preset build type")
     # Define variants
     variant("toolboxes", default=True, description="Enable the Feel++ toolboxes")
     variant("mor", default=True, description="Enable Model Order Reduction (MOR)")
     variant("python", default=True, description="Enable Python wrappers")
     variant("quickstart", default=True, description="Enable the quickstart examples")
     variant("tests", default=False, description="Enable the tests")
+    # analysis tools
+    variant(
+        "analysisTool", default="none", values=("none", "scorep"), multi=False, description="Select the analysis tool (none or scorep)"
+    )
     # Add variants for C++ standards
     variant(
         "cxxstd", default="20", description="C++ standard", values=["17", "20", "23"], multi=False
@@ -48,7 +56,6 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("cxx", type="build")
     depends_on("fortran", type="build")
     depends_on("cmake@3.21:", type="build")
-    depends_on("llvm@14.0.0:")
     depends_on("mpi")
     depends_on(
         "boost@1.75: +regex+date_time+filesystem+iostreams+mpi+multithreaded+program_options+serialization+shared+system+test"
@@ -63,6 +70,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("parmmg")
     depends_on("fmt+shared cxxstd=17")
     depends_on("cln")
+    depends_on("ginac")
     depends_on("eigen")
     depends_on("eigenrand")
     depends_on("nlopt")
@@ -86,6 +94,7 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("ruby")
     depends_on("kokkos +threads+hwloc", when="+kokkos")
     depends_on("kokkos-kernels", when="+kokkos")
+    depends_on("scorep", when="analysisTool=scorep")
 
     for cuda_arch in CudaPackage.cuda_arch_values:
         depends_on(
@@ -133,9 +142,12 @@ class Feelpp(CMakePackage, CudaPackage, ROCmPackage):
 
     def get_preset_name(self):
         spec = self.spec
+        cpp="clang" if "%clang" in spec else "gcc"
         cpp_version = spec.variants["cxxstd"].value
         gpu="rocm" if "+rocm" in spec else "cpu"
-        preset_name = f"feelpp-clang-cpp{cpp_version}-spack-{gpu}-release"
+        analysisTool = self.spec.variants["analysisTool"].value
+        build_type = self.spec.variants["build_type"].value.lower()
+        preset_name = f"feelpp-{cpp}-cpp{cpp_version}-spack-{gpu}-{analysisTool}-{build_type}"
         return preset_name
 
     def cmake_args(self):
