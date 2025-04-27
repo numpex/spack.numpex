@@ -12,7 +12,6 @@ class Matplotplusplus(CMakePackage):
     Modern C++ is being used for a variety of scientific applications, and this environment can benefit considerably from graphics libraries that attend the typical design goals toward scientific data visualization.
     """
 
-    # FIXME: Add a proper url for your package's homepage here.
     homepage = "https://alandefreitas.github.io/matplotplusplus/"
     url = "https://github.com/alandefreitas/matplotplusplus/archive/refs/tags/v1.2.1.tar.gz"
     git = "https://github.com/alandefreitas/matplotplusplus.git"
@@ -29,6 +28,7 @@ class Matplotplusplus(CMakePackage):
     variant("shared", default=True, description="Build shared library")
     variant("opencv", default=False, description="Enable OpenCV support")
 
+    depends_on("c", type="build")
     depends_on("cxx", type="build")
 
     depends_on("jpeg")

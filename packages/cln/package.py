@@ -53,8 +53,7 @@ class Cln(CMakePackage, AutotoolsPackage):
         # Dependencies required to define macro AC_LIB_LINKFLAGS_FROM_LIBS
         depends_on("gettext", type="build")
 
-    depends_on("gmp@4.1:", when="+gmp")
-
+    depends_on("gmp@4.1:", when="+gmp", type=("build","link","run"))
 
 class CMakeBuilder(spack.build_systems.cmake.CMakeBuilder):
     def cmake_args(self):

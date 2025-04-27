@@ -22,7 +22,7 @@ class Fmi4cpp(CMakePackage):
     version("0.8.3", sha256="f48c630f087bdf8d7a04611f6f30942c870c3c1211a94ef2404c40baa4bcb2c9")
 
     variant("shared", default=True, description="Build shared library")
-
+    depends_on("c", type="build")
     depends_on("cxx", type="build")
     depends_on("libzip")
     depends_on("pugixml")

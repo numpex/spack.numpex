@@ -21,7 +21,7 @@ class Eigenrand(CMakePackage):
     version("0.5.1", sha256="105be932693c0f33398bbec8cd6342e86794d92dad9186d3c8ab46ea0140399f")
 
     patch("eigenrand-cmake.patch", when="@0.5.1:")
-
+    depends_on("c", type="build")
     depends_on("cxx", type="build")
     depends_on("eigen")
 

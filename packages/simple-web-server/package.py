@@ -25,6 +25,7 @@ class SimpleWebServer(CMakePackage):
 
     variant("ssl", default=True, description="Enable SSL support")
     
+    depends_on("c", type="build")
     depends_on("cxx", type="build")
 
     depends_on("boost +system+thread+filesystem+regex")
