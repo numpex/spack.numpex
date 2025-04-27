@@ -9,9 +9,9 @@ class Gklib(CMakePackage):
     """A library of various helper routines and frameworks."""
 
     # FIXME: Add a proper url for your package's homepage here.
-    homepage = "https://github.com/feelpp/GKlib.git"
-    url = "https://github.com/feelpp/GKlib/archive/refs/tags/v5.2.0-preview.1.tar.gz"
-    git = "https://github.com/feelpp/GKlib.git"
+    homepage = "https://github.com/numpex/GKlib.git"
+    url = "https://github.com/numpex/GKlib/archive/refs/tags/v5.2.0-preview.1.tar.gz"
+    git = "https://github.com/numpex/GKlib.git"
 
     maintainers("prudhomm")
 
