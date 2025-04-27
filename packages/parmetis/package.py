@@ -17,7 +17,7 @@ class Parmetis(CMakePackage):
     url = "https://github.com/numpex/ParMETIS/archive/refs/tags/v4.0.4-rc.2.tar.gz"
     git = "https://github.com/numpex/ParMETIS"
 
-    version("4.0.4-rc.2")
+    version("4.0.4-rc.2", sha256="dec52ed338c1a00202659e01aff0789d4509e0cc318d073015ea2a8a79629256")
 #    version("4.0.3", sha256="f2d9a231b7cf97f1fee6e8c9663113ebf6c240d407d3c118c55b3633d6be6e5f")
 #    version("4.0.2", sha256="5acbb700f457d3bda7d4bb944b559d7f21f075bb6fa4c33f42c261019ef2f0b2")
 
