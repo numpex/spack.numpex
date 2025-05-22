@@ -4,7 +4,9 @@
 import os
 import sys
 
-import spack.build_systems.cmake
+from spack_repo.builtin.build_systems import cmake
+from spack_repo.builtin.build_systems.cmake import CMakePackage
+
 from spack.package import *
 
 
@@ -51,7 +53,7 @@ class Metis(CMakePackage):
 
 
 
-class CMakeBuilder(spack.build_systems.cmake.CMakeBuilder):
+class CMakeBuilder(cmake.CMakeBuilder):
     def cmake_args(self):
         options = [
             self.define_from_variant("SHARED", "shared"),
