@@ -5,8 +5,11 @@
 
 import os
 
-import spack.build_systems.autotools
-import spack.build_systems.cmake
+from spack_repo.builtin.build_systems import autotools
+from spack_repo.builtin.build_systems.autotools import AutotoolsPackage
+from spack_repo.builtin.build_systems import cmake
+from spack_repo.builtin.build_systems.cmake import CMakePackage
+
 from spack.package import *
 
 
@@ -55,12 +58,12 @@ class Cln(CMakePackage, AutotoolsPackage):
 
     depends_on("gmp@4.1:", when="+gmp", type=("build","link","run"))
 
-class CMakeBuilder(spack.build_systems.cmake.CMakeBuilder):
+class CMakeBuilder(cmake.CMakeBuilder):
     def cmake_args(self):
         return [self.define_from_variant("CLN_USE_GMP", "gmp")]
 
 
-class AutotoolsBuilder(spack.build_systems.autotools.AutotoolsBuilder):
+class AutotoolsBuilder(autotools.AutotoolsBuilder):
     def autoreconf(self, spec, prefix):
         autoreconf_args = ["-i"]
 
