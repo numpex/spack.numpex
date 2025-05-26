@@ -26,6 +26,8 @@ class PyRay(PythonPackage):
         depends_on("py-msgpack")
         depends_on("py-packaging")
         depends_on("py-protobuf")
+        # Higher versions have ABI compatibility because we don't build ray from source
+        depends_on("protobuf@:3.20")
         depends_on("py-pyyaml")
         depends_on("py-requests")
         depends_on("py-watchfiles")
