@@ -26,7 +26,7 @@ class Gklib(CMakePackage):
     variant("shared", default=True, description="Build shared library")
     variant("debug", default=False, description="Build with debug symbols")
 
-    depends_on("c")
+    depends_on("c", type="build")
     
     def cmake_args(self):
         args = [
