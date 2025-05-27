@@ -20,5 +20,5 @@ class Bvh(CMakePackage):
     version("master", branch="master")
     version("feelpp", branch="feelpp", preferred=True)
 
-    depends_on("c")
-    depends_on("cxx")
+    depends_on("c", type="build")
+    depends_on("cxx", type="build")
