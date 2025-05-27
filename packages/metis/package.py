@@ -25,8 +25,9 @@ class Metis(CMakePackage):
     maintainers("prudhomm")
 
     license("Apache-2.0")
-
-    version("5.3.1-rc.6", sha256="6f4998f6a97b2cce566372f193a21a20dc578d381aae9d3070e33412bdadbb79", preferred=True)
+    version("5.3.1-rc.8", sha256="6502f92719991078551a02f21e8cb38d69e75be408669a2cb8fdd3e10c0ececb", preferred=True)
+    version("5.3.1-rc.7", sha256="39f04cab1d1656751727e1a00b885c7b21c498c25af0f41a0d144450a49cabfd", deprecated=True)
+    version("5.3.1-rc.6", sha256="6f4998f6a97b2cce566372f193a21a20dc578d381aae9d3070e33412bdadbb79", deprecated=True)
     version("5.3.1-rc.3", sha256="325866e8d3687be8c487eeaa4b97971d1b3ed708d08af1ed748d46941c11a2ea")
     version("5.3.1-rc.2", sha256="c99d7ab05d527f96fe192ecda4929dc9d811e93107c43d9bbcde4cddf1cc3092")
     version("5.3.1-rc.1", sha256="4aa90f641e78bb30a684d15b7e38dd70a6ada191b623db4b7a1585deb9fe3432")
