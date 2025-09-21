@@ -1,0 +1,1 @@
+# Spack repository namespace package
