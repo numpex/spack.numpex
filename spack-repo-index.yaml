@@ -1,2 +1,3 @@
 repo_index:
-- spack_repo/numpex
+  paths:
+  - spack_repo/numpex
